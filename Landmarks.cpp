@@ -1,7 +1,7 @@
 #include "Landmarks.h"
 #include <climits>
 
-Landmarks::Landmarks(const Node* G = NULL,int k)
+Landmarks::Landmarks(const Graph* G = NULL,int k = 2)
 {
 	if(G == NULL)
 		throw new Exception("No valid input - Landmarks::Landmarks".);
@@ -15,22 +15,38 @@ Landmarks::~Landmarks()
 	delete graph;
 }
 
-void Landmarks::ConvertGraph(const Node* G)
+void Landmarks::ConvertGraph(const Graph* G)
 {
 	landmarks = PickLandmarks();
-	list<list<Node*>*>* newGraph = new list<list<Node*>*>();
+	map<Node*,map<Node*,int>*>* newGraph = new map<Node*,map<Node*,int>*>();
+
+	list<Node*> notLandmarks;
+	
 	for(int i = 0; i < nmbrLandmarks;i++)
 	{
-		list<Node*>* distanceLandmark = new list<Node*>();
+		map<Node*,int>* distanceLandmark = new map<Node*,int>();
+		Node* landmark = landmarks[i];
+
+		bfs_time_visitor
+
+		boost::breadth_first_search(G,vertex(landmark->GetIndex(),G),visitor(vis)
+
+		for(int j = 0; j < notLandmarks.size(); j++)
+		{
+			Node* target = notLandmarks[j];
+			
+		}
+
 		/*foreach node(k) in G that is not a landmark
-			distanceLandmark.insert(DistanceGraph(k,landmarks(i)))
+			value = DistanceGraph(k,landmark))
+			distanceLandmark(k,value)		//Voeg Toe
 		*/
-		newGraph.insert(distanceLandmark);
+		// newGraph(landmark,distanceLandmark);
 	}
 	graph = newGraph;
 }
 
-std::list<Node*> Landmarks::PickLandmarks(const Node* G)
+std::list<Node*> Landmarks::PickLandmarks(const Graph* G)
 {
 	std::list<Node*> newLandmarks = new std::list<Node*>();
 	for(int i = 0; i < nmbrLandmarks;i++)
@@ -61,7 +77,7 @@ int Landmarks::DistanceLandmarks(const Node* s, const Node* t)
 	return 0;
 }
 
-int Landmarks::DistanceGraph(const Node* s, const Node* t, const Node* G)
+int Landmarks::DistanceGraph(const Node* s, const Node* t, const Graph* G)
 {
 	return G.distance(s,t)
 }

@@ -1,7 +1,10 @@
 class Node
 {
 	public:
-		Node();
+		Node(int _index = -1);
 		~Node();
+		int GetIndex();
+		
 	private:
+		int index;
 }
