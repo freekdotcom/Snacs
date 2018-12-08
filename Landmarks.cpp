@@ -34,6 +34,7 @@ std::list<int>* RandomStrategy(int nmbrLandmarks,std::list<Node*>* nodes)
 //  @Pre        :
 //  @Post       :
 Landmarks::Landmarks(const Graph* G, std::list<Node*>* nodes, int _landmarks)
+
 {
 	//strategy = RandomStrategy;
 
@@ -82,6 +83,7 @@ bool Landmarks::ConvertGraph(const Graph* G, std::list<Node*>* nodes)
 				distanceLandmark->insert(std::pair<Node*, int>(*target, DistanceGraph(*source, *target, G)));
 		}
 		newGraph->push_back(distanceLandmark);
+
 	}
 	graph = newGraph;
 	return true;
@@ -153,6 +155,7 @@ int Landmarks::DistanceLandmarks(const Node* s, const Node* t)
 //  @Pre        : 
 //  @Post       :
 int Landmarks::DistanceGraph(Node* s, Node* t, const Graph* G)
+
 {
 	// Create property_map from edges to weights
 	//boost::property_map<const Graph, boost::edge_weight_t>::type weightmap = get(boost::edge_weight, *G);

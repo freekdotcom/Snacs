@@ -1,6 +1,9 @@
 #ifndef LANDMARKS_H
 #define LANDMARKS_H
 #include "Node.h"
+#include "boost/graph/"
+
+typedef boost::undirected_graph<> Graph;
 
 #include <climits>
 #include <algorithm>
@@ -32,19 +35,22 @@ class Landmarks
 {
 	public:
 		Landmarks(const Graph* G, std::list<Node*>* nodes, int k = 2);//, selecting strategy meegeven);
+
 		~Landmarks();
 
 		int DistanceLandmarks(const Node* s, const Node* t);
 		
 	private:
 		std::list<Node*>* landmarks;
+
 		std::list<std::map<Node*,int>*>* graph;
+
 		int nmbrLandmarks;
 		//Delegate strategy;
-		
-
+	
 		bool ConvertGraph(const Graph* G, std::list<Node*>* nodes);
 		std::list<Node*>* PickLandmarks(const Graph* G, std::list<Node*>* nodes);
 		int DistanceGraph(Node* s, Node* t, const Graph* G);
 };
+
 
