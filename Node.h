@@ -1,10 +1,16 @@
+#ifndef NODE_H
+#define NODE_H
+
+#endif
+
 class Node
 {
 	public:
-		Node(int _index = -1);
+
+    Node(int _info);
 		~Node();
-		int GetIndex();
-		
+		int GetInfo();
 	private:
-		int index;
-}
+	  int info;
+};
+

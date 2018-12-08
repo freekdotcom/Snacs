@@ -1,16 +1,36 @@
 #include "Node.h"
 
-Node::Node(int _index = -1)
-{
-	index = _index;
+///			Created By	
+///	E. Janssen	&	F. v.d. Meulen
+///--------------------------------------
+///	Project	:	Landmark System
+/// Course	:	Social Network Analysis
+/// Date	  :	30/11/2018
+/// Classe	:	Node
+///---------------------------------------
+
+//  Function    : Constructor
+//  Description :
+//  @Param      : int _info
+//  @Pre        :
+//  @Post       :
+Node::Node(int _info){
+  info = _info;
+
 }
 
-~Node::Node()
-{
-
+//  Function    : Destructor
+//  Description :
+//  @Pre        :
+//  @Post       :
+Node::~Node(){
 }
 
-int Node::GetIndex()
+//  Function    : Getter Info
+//  Description :
+//  @Pre        :
+//  @Post       :
+int Node::GetInfo()
 {
-	return index;
+  return info;
 }
