@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/FinalProject.vcxproj.user
+/FinalProject.vcxproj.filters
+/FinalProject.vcxproj
+/.vs
+/.gitattributes
+/x64/Debug
+/packages.config
+/facebook_clean_data
