@@ -1,39 +1,156 @@
-#pragma once
 #ifndef STRATEGY_H
 #define STRATEGY_H
 #include "Landmarks.h"
 
+///			Created By	
+///	E. Janssen	&	F. v.d. Meulen
+///--------------------------------------
+///	Project	:	Landmark System
+/// Course	:	Social Network Analysis
+/// Date	  :	10/12/2018
+/// Classe	:	Strategies
+///---------------------------------------
+
+//  Function    : Compare Map 
+//  Description :
+//	@Param		: std::pair<int, int> elem1
+//	@Param		: std::pair<int, int> elem2
+//  @Pre        :
+//  @Post       :
+bool Compare(std::pair<int, int> elem1, std::pair<int, int> elem2)
+{
+	return (elem1.second < elem2.second);
+};
 
 //  Function    : Random Strategy
 //  Description :
-//	@Param		  : int nmbrLandmarks
-//	@Param		  : std::list<Node*>* nodes
+//	@Param		: Graph * G
+//	@Param		: int nmbrLandmarks
+//	@Param		: std::list<Node*>* nodes
 //  @Pre        :
 //  @Post       :
-std::vector<int>* RandomStrategy(Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
+std::vector<int>* RandomStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
 {
 	std::vector<int>* nmbrs = new std::vector<int>();
-	for (int i = 0; i < nmbrLandmarks; i++)
+	while(nmbrs->size() != nmbrLandmarks)
 	{
-		nmbrs->push_back(rand() % nodes->size());
+		int newIndex = rand() % nodes->size();
+		if (find(nmbrs->begin(), nmbrs->end(),newIndex) == nmbrs->end())
+			nmbrs->push_back(rand() % nodes->size());
 	}
 	return nmbrs;
 }
 
 //  Function    : Degree Strategy
 //  Description :
-//	@Param		  : int nmbrLandmarks
-//	@Param		  : std::list<Node*>* nodes
+//	@Param		: Graph * G
+//	@Param		: int nmbrLandmarks
+//	@Param		: std::list<Node*>* nodes
 //  @Pre        :
 //  @Post       :
-std::vector<int>* DegreeStrategy(Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
+std::vector<int>* DegreeStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
 {
 	std::vector<int>* nmbrs = new std::vector<int>();
-	for (int i = 0; i < nmbrLandmarks; i++)
+
+	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+
+	std::map<int, int>* degree = new std::map<int,int>();
+
+	boost::tie(vi, vi_end) = boost::vertices(*G);
+	for (next = vi; vi != vi_end; vi = next) {
+		++next;
+		degree->insert(std::pair<int, int>(*vi, boost::out_degree(*vi, *G)));
+	}
+
+	auto compFunctor =
+		[](std::pair<int, int> elem1, std::pair<int, int> elem2)
 	{
-		
+		return elem1.second < elem2.second;
+	};
+
+	std::set<std::pair<int, int>, Comparator> setOfWords(
+		degree->begin(), degree->end(), compFunctor);
+
+	int i = 0;
+	for (std::pair<int, int> element : setOfWords)
+	{
+		nmbrs->push_back(element.first);
+		i++;
+		if (i == nmbrLandmarks)
+			break;
+	}
+	return nmbrs;
+}
+
+//  Function    : Closeness Strategy
+//  Description :
+//	@Param		: Graph * G
+//	@Param		: int nmbrLandmarks
+//	@Param		: std::list<Node*>* nodes
+//  @Pre        :
+//  @Post       :
+std::vector<int>* ClosenessStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
+{
+	std::vector<int>* nmbrs = new std::vector<int>();
+
+	std::vector<std::pair<float, int>>* closeness = new std::vector<std::pair<float, int>>();
+
+	DistanceMatrix distances(num_vertices(*G));
+	DistanceMatrixMap dm(distances, *G);
+	WeightMap wm(1);
+	floyd_warshall_all_pairs_shortest_paths(*G, dm, weight_map(wm));
+
+	// Compute the closeness centrality for graph.
+	ClosenessContainer cents(num_vertices(*G));
+	ClosenessMap cm(cents, *G);
+	all_closeness_centralities(*G, dm, cm);
+
+	
+	// Print the closeness centrality of each vertex.
+	boost::graph_traits<Graph>::vertex_iterator i, end;
+	for (boost::tie(i, end) = boost::vertices(*G); i != end; ++i) {
+		closeness->push_back(std::pair<float,int>(get(cm,*i),*i));
+	}
+
+	sort(closeness->begin(), closeness->end());
+
+	for (int k = 1; k <= nmbrLandmarks; k++)
+	{
+		nmbrs->push_back(closeness->at(closeness->size() - k).second);
+	}
+	return nmbrs;
+
+}
+
+//  Function    : Cluserting Strategy
+//  Description :
+//	@Param		: Graph * G
+//	@Param		: int nmbrLandmarks
+//	@Param		: std::list<Node*>* nodes
+//  @Pre        :
+//  @Post       :
+std::vector<int>* ClusteringStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
+{
+	std::vector<int>* nmbrs = new std::vector<int>();
+
+	std::vector<std::pair<float,int>>* cluster = new std::vector<std::pair<float,int>>();
+
+	ClusteringContainer coefs(boost::num_vertices(*G));
+	ClusteringMap cm(coefs,*G);
+	float cc = all_clustering_coefficients(*G, cm);
+
+	// Print the clustering coefficient of each vertex.
+	boost::graph_traits<Graph>::vertex_iterator i, end;
+	for (boost::tie(i, end) = boost::vertices(*G); i != end; ++i) {
+		cluster->push_back(std::pair<float,int>(get(cm,*i),*i));
+	}
+
+	sort(cluster->begin(), cluster->end());
+
+	for (int k = 1; k <= nmbrLandmarks; k++)
+	{
+		nmbrs->push_back(cluster->at(cluster->size() - k  ).second);
 	}
 	return nmbrs;
 }
 #endif
-

@@ -5,7 +5,7 @@
 ///--------------------------------------
 ///	Project	:	Landmark System
 /// Course	:	Social Network Analysis
-/// Date	  :	30/11/2018
+/// Date	  :	10/12/2018
 /// Classe	:	Node
 ///---------------------------------------
 

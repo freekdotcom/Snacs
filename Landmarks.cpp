@@ -5,7 +5,7 @@
 ///--------------------------------------
 ///	Project	:	Landmark System
 /// Course	:	Social Network Analysis
-/// Date	  :	30/11/2018
+/// Date	  :	10/12/2018
 /// Classe	:	Landmarks
 ///---------------------------------------
 
@@ -23,11 +23,13 @@ Landmarks::Landmarks(const Graph* G, std::vector<Node*>* nodes, Delegate _strate
 	if(G == NULL)
 		throw "No valid input - Landmarks::Landmarks";
 	nmbrLandmarks = _landmarks;
-	
+
+	std::cout	<< "Converting Graph to Landmark System"	<< std::endl
+				<< "Status: Starting"						<< std::endl;
 	if (ConvertGraph(G, nodes) == false)
 		throw "Converting Graph Error - Landmarks::Landmarks";
 	else
-		std::cout << "Converting Graph - Succeed." << std::endl;
+		std::cout << "Status: Completed"	<< std::endl	<< std::endl;
 }
 
 //  Function    : Destructor
@@ -64,7 +66,7 @@ boost::tuple<int,int,int,int> Landmarks::DistanceLandmarks(Node* s, Node* t)
 
 		//Calculate upper bound from this landmark.
 		int U = si + ti;
-		if (U < UpperBound)
+		if (U != 0 && U < UpperBound)
 			UpperBound = U;
 	}
 	//Calculate middle point and geometric mean.
@@ -118,7 +120,7 @@ std::vector<Node*>* Landmarks::PickLandmarks(const Graph* G, std::vector<Node*>*
 {
 	std::vector<Node*>* newLandmarks = new std::vector<Node*>();
 
-	std::vector<int>* nmbrs = strategy(nmbrLandmarks,nodes);
+	std::vector<int>* nmbrs = strategy(G,nmbrLandmarks,nodes);
 	
 	//Node Selection By Index
 	for (std::vector<Node*>::iterator it = nodes->begin(); it != nodes->end(); ++it)
