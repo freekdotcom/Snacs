@@ -96,7 +96,7 @@ bool Landmarks::ConvertGraph(const Graph* G, std::vector<Node*>* nodes)
 		return false;
 
 	//Create Graph Representation
-	std::vector<std::map<Node*,int>*>* newGraph = new std::vector<std::map<Node*,int>*>();;
+	std::vector<std::map<Node*,int>*>* newGraph = new std::vector<std::map<Node*,int>*>();
 	for (std::vector<Node *>::iterator source = landmarks->begin(); source != landmarks->end(); ++source)
 	{
 		newGraph->push_back(DijkstraDistance(G,*source,nodes));
@@ -123,14 +123,10 @@ std::vector<Node*>* Landmarks::PickLandmarks(const Graph* G, std::vector<Node*>*
 	std::vector<int>* nmbrs = strategy(G,nmbrLandmarks,nodes);
 	
 	//Node Selection By Index
-	for (std::vector<Node*>::iterator it = nodes->begin(); it != nodes->end(); ++it)
+	for (int i = 0; i < nmbrs->size(); i++)
 	{
-		Node * getNode = *it;
-		if (std::find(nmbrs->begin(), nmbrs->end(), getNode->GetInfo()) != nmbrs->end())
-			newLandmarks->push_back(getNode);
+		newLandmarks->push_back(nodes->at(nmbrs->at(i)));
 	}
-
-	delete nmbrs;
 
 	if(newLandmarks->size() != nmbrLandmarks)
 		throw "Not enough Landmarks selected - Landmark::PickLandmarks";

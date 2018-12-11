@@ -17,7 +17,7 @@
 //	@Param		: std::string delimeter
 //  @Pre        :
 //  @Post       :
-boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, bool header, std::string delimiter)
+boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header, std::string delimiter)
 {
 	bool headerTrigger = header;
 
@@ -49,9 +49,9 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, bool header
 	while (getline(file, line))
 	{
 		//Skipping any headers.
-		if (headerTrigger == true && header == true)
+		if (header > 0)
 		{
-			headerTrigger = false;
+			header--;
 			continue;
 		}
 
@@ -67,12 +67,20 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, bool header
 			int A = std::stoi(a);
 			int B = std::stoi(b);
 
-			nodes->insert(A);
-			nodes->insert(B);
+			if(nodes->find(A) == nodes->end())
+				nodes->insert(A);
 
-			boost::add_edge(A, B, 1, *G);
-			boost::add_edge(B, A, 1, *G);
+			if(nodes->find(B) == nodes->end())
+				nodes->insert(B);
+
+			int indexA = std::distance(nodes->begin(), nodes->find(A));
+			int indexB = std::distance(nodes->begin(), nodes->find(B));
+
+			boost::add_edge(indexA, indexB, 1, *G);
+			//boost::add_edge(B, A, 1, *G);
 		}
+		else
+			std::cerr << "ERROR - PARSECSV";
 	}
 	std::cout << "Status: Complete - " << a.back() << std::endl << std::endl;
 	return boost::make_tuple( G, nodes );
@@ -132,9 +140,9 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	//Parser
-	bool header = true;
-	std::string delimiter = ",";
-	boost::tuple<Graph*, std::set<int>*> x = ParseCSV(argv[1],header,delimiter);
+	int header = 4;
+	std::string delimiter = "\t";
+	boost::tuple<Graph*, std::set<int>*> x = ParseCSV("dblp/dblp.txt",header,delimiter);
 
 	//Tuple Extraction
 	const Graph* graph = boost::get<0>(x);
@@ -151,6 +159,7 @@ int main(int argc, char **argv)
 	std::cout	<< "Testing Graph"						<< std::endl
 				<< "----------------------------------" << std::endl;		
 	int runs = 500;
+	int landmarks = 20; 
 	std::vector<std::string>* stringStrat = new std::vector<std::string>({ "Random","Degree","Clustering" });
 	
 	std::vector<Delegate>* strategies = new std::vector<Delegate>({ RandomStrategy, DegreeStrategy, ClusteringStrategy });
@@ -161,7 +170,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < strategies->size(); i++)
 	{
 		//Creating Our System Representation
-		Landmarks* system = new Landmarks(graph, nodesList, strategies->at(i), 20);
+		Landmarks* system = new Landmarks(graph, nodesList, strategies->at(i), landmarks);
 
 		float AverageError = 0;
 		float AverageRatio = 0;
