@@ -62,15 +62,19 @@ boost::tuple<int,int,int,int> Landmarks::DistanceLandmarks(Node* s, Node* t)
 		int si = landmark->find(s)->second;
 		int ti = landmark->find(t)->second;
 
-		//Calculate lower bound from this landmark.
-		int L = abs(ti - si);
-		if (L > LowerBound)
-			LowerBound = L;
+    if(si != INT_MAX || ti != INT_MAX)
+    {
+		  //Calculate lower bound from this landmark.
+		  int L = abs(ti - si);
+		  if (L > LowerBound)
+			  LowerBound = L;
 
-		//Calculate upper bound from this landmark.
-		int U = si + ti;
-		if (U != 0 && U < UpperBound)
-			UpperBound = U;
+		  //Calculate upper bound from this landmark.
+		  int U = si + ti;
+
+		  if (U != 0 && U < UpperBound)
+			  UpperBound = U;
+		}		  
 	}
 	//Calculate middle point and geometric mean.
 	int mPoint = floor((UpperBound + LowerBound) / 2);

@@ -1,0 +1,4 @@
+Strategy    | Average Error | Average Ratio   | Average Upperbound  | Average Lowerbound
+Random      | 0.002         | 0.582927        | 6                   | 2
+Degree      | 0.023         | 0.659827        | 6                   | 1
+Clustering  | 0.027         | 0.614457        | 6                   | 1

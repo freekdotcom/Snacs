@@ -117,15 +117,20 @@ int trueDistance(const Graph* G, Node* s, Node* t)
 	std::vector<boost::graph_traits<Graph>::vertex_descriptor > path;
 	boost::graph_traits<Graph>::vertex_descriptor current = goal;
 
-	while (current != begin)
+  int max = 20;
+	while (current != begin && max > 0)
 	{
 		path.push_back(current);
 		current = p[current];
+		max--;
 	}
 	path.push_back(begin);
 
 	//Find Length of Shortest Path
-	return path.size();
+	if(max != 0)
+  	return path.size();
+ 	else
+  	return INT_MAX;
 }
 
 //  Function    : Main Application
@@ -189,6 +194,9 @@ int main(int argc, char **argv)
 		float AverageRatio = 0;
 		float AverageUpperbound = 0;
 		float AverageLowerbound = 0;
+		
+		std::vector<int>* lowerVector = new std::vector<int>();
+		std::vector<int>* upperVector = new std::vector<int>();
 
 		for (int i = 0; i < runs; i++)
 		{
@@ -204,23 +212,29 @@ int main(int argc, char **argv)
 			boost::tuple<int, int, int, int> approx = system->DistanceLandmarks(Anode, Bnode);
 			int U = boost::get<0>(approx);
 			int L = boost::get<1>(approx);
-
+			
 			int distance = trueDistance(graph, Anode, Bnode);
-
+      
 			float error = abs(U - distance) / distance;
 			float ratio = ((double)(U - L)) / ((double)U);
-
-			AverageError += error;
-			AverageUpperbound += U;
-			AverageLowerbound += L;
+      
+      lowerVector->push_back(L);
+      upperVector->push_back(U);
+      
+      
 			AverageRatio += ratio;
+  		AverageError += error;
 		}
 		AverageError /= runs;
 		AverageRatio /= runs;
-		AverageUpperbound /= runs;
-		AverageLowerbound /= runs;
+		
+		sort(lowerVector->begin(), lowerVector->end());
+		sort(upperVector->begin(), upperVector->end());
+		
+		AverageUpperbound = upperVector->at(runs/2);
+		AverageLowerbound = lowerVector->at(runs/2);
 
-		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << AverageUpperbound << AverageLowerbound << std::endl;
+		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << " | " << AverageUpperbound << " | " << AverageLowerbound << std::endl;
 
 		std::cout	<< "Executed: \t" << stringStrat->at(i)								<< std::endl
 					<< "Average Error: \t" << AverageError								<< std::endl
