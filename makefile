@@ -1,7 +1,7 @@
 CC = g++
 CXX = gcc
 RM= rm -f
-CPPFLAGS = -g -Wall
+CPPFLAGS = -g -std=c++11 -Wall
 
 
 SRCS = app.cpp Landmarks.cpp Node.cpp
@@ -12,7 +12,7 @@ all: app
 app: $(OBJS)
 	$(CC) $(CPPFLAGS) -o app $(OBJS)
 
-app.o: app.cpp Landmarks.h
+app.o: app.cpp Landmarks.h Strategy.h
 
 Landmarks.o: Landmarks.h Node.h Landmarks.cpp
 

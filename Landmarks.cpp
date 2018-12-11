@@ -24,6 +24,9 @@ Landmarks::Landmarks(const Graph* G, std::vector<Node*>* nodes, Delegate _strate
 		throw "No valid input - Landmarks::Landmarks";
 	nmbrLandmarks = _landmarks;
 
+  landmarks = NULL;
+  graph = NULL;
+
 	std::cout	<< "Converting Graph to Landmark System"	<< std::endl
 				<< "Status: Starting"						<< std::endl;
 	if (ConvertGraph(G, nodes) == false)
@@ -39,7 +42,7 @@ Landmarks::Landmarks(const Graph* G, std::vector<Node*>* nodes, Delegate _strate
 Landmarks::~Landmarks()
 {
 	delete landmarks;
-	delete graph;
+	graph = NULL;
 }
 
 //  Function    : Distance Landmarks 
@@ -86,25 +89,16 @@ bool Landmarks::ConvertGraph(const Graph* G, std::vector<Node*>* nodes)
 {
 	if (nodes == NULL || nodes->size() == 0)
 		throw "Invallid node structure - Landmark::ConvertGraph";
-	if (landmarks != NULL)
-	{
-		delete landmarks;
-		landmarks = NULL;
-	}
+	std::cout << "Finding Landmarks" << std::endl;
 	landmarks = PickLandmarks(G,nodes);
 	if (landmarks == NULL || landmarks->size() == 0)
 		return false;
-
+    std::cout << "Found Landmarks" << std::endl;
 	//Create Graph Representation
 	std::vector<std::map<Node*,int>*>* newGraph = new std::vector<std::map<Node*,int>*>();
 	for (std::vector<Node *>::iterator source = landmarks->begin(); source != landmarks->end(); ++source)
 	{
 		newGraph->push_back(DijkstraDistance(G,*source,nodes));
-	}
-	if (graph != NULL)
-	{
-		delete graph;
-		graph = NULL;
 	}
 	graph = newGraph;
 	return true;

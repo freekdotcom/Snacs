@@ -61,7 +61,7 @@ std::vector<int>* DegreeStrategy(const Graph* G, int nmbrLandmarks, std::vector<
 		++next;
 		degree->insert(std::pair<int, int>(*vi, boost::out_degree(*vi, *G)));
 	}
-
+  std::cout << "Degree Founds" << std::endl;
 	auto compFunctor =
 		[](std::pair<int, int> elem1, std::pair<int, int> elem2)
 	{
@@ -70,7 +70,7 @@ std::vector<int>* DegreeStrategy(const Graph* G, int nmbrLandmarks, std::vector<
 
 	std::set<std::pair<int, int>, Comparator> setOfWords(
 		degree->begin(), degree->end(), compFunctor);
-
+  std::cout << "Map sorted" << std::endl;
 	int i = 0;
 	for (std::pair<int, int> element : setOfWords)
 	{
@@ -94,7 +94,7 @@ std::vector<int>* ClosenessStrategy(const Graph* G, int nmbrLandmarks, std::vect
 	std::vector<int>* nmbrs = new std::vector<int>();
 
 	std::vector<std::pair<float, int>>* closeness = new std::vector<std::pair<float, int>>();
-
+  
 	DistanceMatrix distances(num_vertices(*G));
 	DistanceMatrixMap dm(distances, *G);
 	WeightMap wm(1);
@@ -106,12 +106,12 @@ std::vector<int>* ClosenessStrategy(const Graph* G, int nmbrLandmarks, std::vect
 	all_closeness_centralities(*G, dm, cm);
 
 	
-	// Print the closeness centrality of each vertex.
 	boost::graph_traits<Graph>::vertex_iterator i, end;
 	for (boost::tie(i, end) = boost::vertices(*G); i != end; ++i) {
 		closeness->push_back(std::pair<float,int>(get(cm,*i),*i));
 	}
-
+  
+  std::cout << "Map sorted" << std::endl;
 	sort(closeness->begin(), closeness->end());
 
 	for (int k = 1; k <= nmbrLandmarks; k++)
@@ -135,16 +135,17 @@ std::vector<int>* ClusteringStrategy(const Graph* G, int nmbrLandmarks, std::vec
 
 	std::vector<std::pair<float,int>>* cluster = new std::vector<std::pair<float,int>>();
 
+  std::cout << "Calculating Clustering Coefficient" << std::endl;
 	ClusteringContainer coefs(boost::num_vertices(*G));
 	ClusteringMap cm(coefs,*G);
-	float cc = all_clustering_coefficients(*G, cm);
 
+  std::cout << "Pairing Clustering Coefficient" << std::endl;
 	// Print the clustering coefficient of each vertex.
 	boost::graph_traits<Graph>::vertex_iterator i, end;
 	for (boost::tie(i, end) = boost::vertices(*G); i != end; ++i) {
 		cluster->push_back(std::pair<float,int>(get(cm,*i),*i));
 	}
-
+  std::cout << "Map sorted" << std::endl;
 	sort(cluster->begin(), cluster->end());
 
 	for (int k = 1; k <= nmbrLandmarks; k++)

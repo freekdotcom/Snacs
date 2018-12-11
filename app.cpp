@@ -19,8 +19,6 @@
 //  @Post       :
 boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header, std::string delimiter)
 {
-	bool headerTrigger = header;
-
 	std::ifstream file(parseFile);
 
 	if (!file)
@@ -43,22 +41,24 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header,
 
 	//Instances of our return values
 	std::set<int>* nodes = new std::set<int>();
+	std::map<int,int>* dict = new std::map<int,int>();
+	int teller = 0;
 	Graph* G = new Graph();
 
 	//Loop through all line in the file
 	while (getline(file, line))
 	{
+	  
 		//Skipping any headers.
 		if (header > 0)
 		{
 			header--;
 			continue;
 		}
-
+    
 		//Splitting on delimiter
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, line, boost::is_any_of(delimiter));
-
 		//Undirected and Unweighted
 		if (vec.size() == 2)
 		{
@@ -68,21 +68,29 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header,
 			int B = std::stoi(b);
 
 			if(nodes->find(A) == nodes->end())
-				nodes->insert(A);
+			{
+			  nodes->insert(A);
+			  dict->insert(std::pair<int,int>(A,teller));			  
+			  teller++;
+      }				
 
 			if(nodes->find(B) == nodes->end())
-				nodes->insert(B);
+		  {
+		    nodes->insert(B);
+			  dict->insert(std::pair<int,int>(B,teller));			  
+			  teller++;
+		  }
 
-			int indexA = std::distance(nodes->begin(), nodes->find(A));
-			int indexB = std::distance(nodes->begin(), nodes->find(B));
+      int indexA = dict->find(A)->second;
+      int indexB = dict->find(B)->second;
 
 			boost::add_edge(indexA, indexB, 1, *G);
-			//boost::add_edge(B, A, 1, *G);
+			boost::add_edge(indexB, indexA, 1, *G);
 		}
 		else
 			std::cerr << "ERROR - PARSECSV";
 	}
-	std::cout << "Status: Complete - " << a.back() << std::endl << std::endl;
+	std::cout << "Status: Complete - " << a.back() << std::endl << std::endl;	
 	return boost::make_tuple( G, nodes );
 }
 
@@ -139,10 +147,14 @@ int main(int argc, char **argv)
 
 	srand(time(NULL));
 
+  std::cout<<argv[1] << std::endl;
+
 	//Parser
-	int header = 4;
-	std::string delimiter = "\t";
-	boost::tuple<Graph*, std::set<int>*> x = ParseCSV("dblp/dblp.txt",header,delimiter);
+	int header = std::stoi(argv[2]);
+	std::string delimiter = argv[3];
+	std::string filename = argv[1];
+	
+	boost::tuple<Graph*, std::set<int>*> x = ParseCSV(filename,header,delimiter);
 
 	//Tuple Extraction
 	const Graph* graph = boost::get<0>(x);
@@ -166,27 +178,32 @@ int main(int argc, char **argv)
 
 	std::ofstream outputFile;
 	outputFile.open("output.txt");
-	outputFile << "Strategy | Average Error | Average Ratio " << std::endl;
+	outputFile << "Strategy | Average Error | Average Ratio | Average Upperbound | Average Lowerbound" << std::endl;
 	for (int i = 0; i < strategies->size(); i++)
 	{
 		//Creating Our System Representation
+		std::cout<<"New Strategy" << std::endl; 
 		Landmarks* system = new Landmarks(graph, nodesList, strategies->at(i), landmarks);
 
 		float AverageError = 0;
 		float AverageRatio = 0;
+		float AverageUpperbound = 0;
+		float AverageLowerbound = 0;
 
 		for (int i = 0; i < runs; i++)
 		{
+		  
 			int indexA = rand() % (nodes->size());
 			int indexB = rand() % (nodes->size());
+			
+			std::cout << "Run - " << i              << std::endl
+			          << indexA << " - " << indexB  << std::endl;
 			Node* Anode = nodesList->at(indexA);
 			Node* Bnode = nodesList->at(indexB);
 
 			boost::tuple<int, int, int, int> approx = system->DistanceLandmarks(Anode, Bnode);
 			int U = boost::get<0>(approx);
 			int L = boost::get<1>(approx);
-			int middlePoint = boost::get<2>(approx);
-			int geometricMean = boost::get<3>(approx);
 
 			int distance = trueDistance(graph, Anode, Bnode);
 
@@ -194,18 +211,27 @@ int main(int argc, char **argv)
 			float ratio = ((double)(U - L)) / ((double)U);
 
 			AverageError += error;
+			AverageUpperbound += U;
+			AverageLowerbound += L;
 			AverageRatio += ratio;
 		}
 		AverageError /= runs;
 		AverageRatio /= runs;
+		AverageUpperbound /= runs;
+		AverageLowerbound /= runs;
 
-		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << std::endl;
+		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << AverageUpperbound << AverageLowerbound << std::endl;
 
 		std::cout	<< "Executed: \t" << stringStrat->at(i)								<< std::endl
 					<< "Average Error: \t" << AverageError								<< std::endl
 					<< "Average Ratio: \t" << AverageRatio								<< std::endl
+					<< "Average Upperbound: \t" << AverageUpperbound << std::endl
+					<< "Average Lowerbound: \t" << AverageLowerbound << std::endl
 					<< "---------------------------------------------"	<< std::endl	<< std::endl;
+
+		std::cout <<" End of Strategy " << std::endl;
 		delete system;
+		system = NULL;
 	}
 	outputFile.close();
 	return 0;
