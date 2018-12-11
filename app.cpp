@@ -72,23 +72,23 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header,
 			  nodes->insert(A);
 			  dict->insert(std::pair<int,int>(A,teller));			  
 			  teller++;
-      }				
+			}				
 
 			if(nodes->find(B) == nodes->end())
-		  {
-		    nodes->insert(B);
-			  dict->insert(std::pair<int,int>(B,teller));			  
-			  teller++;
-		  }
+			{
+				nodes->insert(B);
+				dict->insert(std::pair<int,int>(B,teller));			  
+				 teller++;
+			}
 
-      int indexA = dict->find(A)->second;
-      int indexB = dict->find(B)->second;
+			int indexA = dict->find(A)->second;
+			int indexB = dict->find(B)->second;
 
 			boost::add_edge(indexA, indexB, 1, *G);
 			boost::add_edge(indexB, indexA, 1, *G);
 		}
 		else
-			std::cerr << "ERROR - PARSECSV";
+				std::cerr << "ERROR - PARSECSV";
 	}
 	std::cout << "Status: Complete - " << a.back() << std::endl << std::endl;	
 	return boost::make_tuple( G, nodes );
@@ -117,7 +117,7 @@ int trueDistance(const Graph* G, Node* s, Node* t)
 	std::vector<boost::graph_traits<Graph>::vertex_descriptor > path;
 	boost::graph_traits<Graph>::vertex_descriptor current = goal;
 
-  int max = 20;
+	int max = 20;
 	while (current != begin && max > 0)
 	{
 		path.push_back(current);
@@ -152,8 +152,6 @@ int main(int argc, char **argv)
 
 	srand(time(NULL));
 
-  std::cout<<argv[1] << std::endl;
-
 	//Parser
 	int header = std::stoi(argv[2]);
 	std::string delimiter = argv[3];
@@ -176,16 +174,17 @@ int main(int argc, char **argv)
 	std::cout	<< "Testing Graph"						<< std::endl
 				<< "----------------------------------" << std::endl;		
 	int runs = 500;
-	int landmarks = 20; 
+	int landmarks = 100; 
 	std::vector<std::string>* stringStrat = new std::vector<std::string>({ "Random","Degree","Clustering" });
 	
 	std::vector<Delegate>* strategies = new std::vector<Delegate>({ RandomStrategy, DegreeStrategy, ClusteringStrategy });
 
 	std::ofstream outputFile;
 	outputFile.open("output.txt");
-	outputFile << "Strategy | Average Error | Average Ratio | Average Upperbound | Average Lowerbound" << std::endl;
+	outputFile << "Strategy | Average Error | Average Ratio | Average Upperbound | Average Lowerbound | Time" << std::endl;
 	for (int i = 0; i < strategies->size(); i++)
 	{
+		const clock_t begin_time = clock();
 		//Creating Our System Representation
 		std::cout<<"New Strategy" << std::endl; 
 		Landmarks* system = new Landmarks(graph, nodesList, strategies->at(i), landmarks);
@@ -234,13 +233,14 @@ int main(int argc, char **argv)
 		AverageUpperbound = upperVector->at(runs/2);
 		AverageLowerbound = lowerVector->at(runs/2);
 
-		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << " | " << AverageUpperbound << " | " << AverageLowerbound << std::endl;
+		outputFile << stringStrat->at(i) << " | " << AverageError << " | " << AverageRatio << " | " << AverageUpperbound << " | " << AverageLowerbound << " | " <<  float(clock() - begin_time) / CLOCKS_PER_SEC  << std::endl;
 
 		std::cout	<< "Executed: \t" << stringStrat->at(i)								<< std::endl
 					<< "Average Error: \t" << AverageError								<< std::endl
 					<< "Average Ratio: \t" << AverageRatio								<< std::endl
 					<< "Average Upperbound: \t" << AverageUpperbound << std::endl
 					<< "Average Lowerbound: \t" << AverageLowerbound << std::endl
+					<< float(clock() - begin_time) / CLOCKS_PER_SEC << std::endl
 					<< "---------------------------------------------"	<< std::endl	<< std::endl;
 
 		std::cout <<" End of Strategy " << std::endl;
