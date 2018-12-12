@@ -51,34 +51,26 @@ std::vector<int>* RandomStrategy(const Graph* G, int nmbrLandmarks, std::vector<
 std::vector<int>* DegreeStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
 {
 	std::vector<int>* nmbrs = new std::vector<int>();
+	
+	std::vector<std::pair<float, int>>* degree = new std::vector<std::pair<float, int>>();
 
 	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
 
-	std::map<int, int>* degree = new std::map<int,int>();
 
 	boost::tie(vi, vi_end) = boost::vertices(*G);
 	for (next = vi; vi != vi_end; vi = next) {
 		++next;
-		degree->insert(std::pair<int, int>(*vi, boost::out_degree(*vi, *G)));
+		degree->push_back(std::pair<int, int>(*vi, boost::out_degree(*vi, *G)));
 	}
-  std::cout << "Degree Founds" << std::endl;
-	auto compFunctor =
-		[](std::pair<int, int> elem1, std::pair<int, int> elem2)
-	{
-		return elem1.second < elem2.second;
-	};
-
-	std::set<std::pair<int, int>, Comparator> setOfWords(
-		degree->begin(), degree->end(), compFunctor);
+  
   std::cout << "Map sorted" << std::endl;
-	int i = 0;
-	for (std::pair<int, int> element : setOfWords)
+	sort(degree->begin(), degree->end());
+
+	for (int k = 1; k <= nmbrLandmarks; k++)
 	{
-		nmbrs->push_back(element.first);
-		i++;
-		if (i == nmbrLandmarks)
-			break;
+		nmbrs->push_back(degree->at(degree->size() - k).second);
 	}
+	std::cout<<"Found: " << nmbrs->size() << " landmarks" <<std::endl;
 	return nmbrs;
 }
 
