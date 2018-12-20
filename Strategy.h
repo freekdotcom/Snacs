@@ -32,11 +32,15 @@ bool Compare(std::pair<int, int> elem1, std::pair<int, int> elem2)
 std::vector<int>* RandomStrategy(const Graph* G, int nmbrLandmarks, std::vector<Node*>* nodes)
 {
 	std::vector<int>* nmbrs = new std::vector<int>();
-	while(nmbrs->size() != nmbrLandmarks)
+	int added = 0;
+	while(added < nmbrLandmarks)
 	{
 		int newIndex = rand() % nodes->size();
 		if (find(nmbrs->begin(), nmbrs->end(),newIndex) == nmbrs->end())
-			nmbrs->push_back(rand() % nodes->size());
+		{
+      nmbrs->push_back(rand() % nodes->size());
+      added++;
+		}
 	}
 	return nmbrs;
 }

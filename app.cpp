@@ -32,10 +32,6 @@ boost::tuple<Graph*, std::set<int>*> ParseCSV(std::string parseFile, int header,
 	std::cout	<< "Parsing: " << a.back()	<< std::endl
 				<< "Status: Starting"		<< std::endl;
 	
-	//Creating Storage for edges and weights of edges
-	std::vector<Edge>* edge_vec = new std::vector<Edge>();
-	std::vector<int>* weights_vec = new std::vector<int>();
-
 	//Creating temporary stprage to read per line.
 	std::string line = "";
 
@@ -128,9 +124,9 @@ int trueDistance(const Graph* G, Node* s, Node* t)
 
 	//Find Length of Shortest Path
 	if(max != 0)
-  	return path.size();
+  	    return path.size();
  	else
-  	return INT_MAX;
+  	    return INT_MAX;
 }
 
 //  Function    : Main Application
@@ -151,11 +147,21 @@ int main(int argc, char **argv)
 				<< "----------------------------------"			<< std::endl << std::endl;
 
 	srand(time(NULL));
+  
+    if(argc != 6)
+    {
+        std::cout << "Please use : {Filename} {Delimiter} {HeaderLines} {Runs} {Landmarks}" << std::endl;
+        return 0;
+    }
 
 	//Parser
-	int header = std::stoi(argv[2]);
-	std::string delimiter = argv[3];
 	std::string filename = argv[1];
+	std::string delimiter = argv[2];
+	int header = std::stoi(argv[3]);
+	
+	int runs = std::stoi(argv[4]);
+	int landmarks = std::stoi(argv[5]);
+
 	
 	boost::tuple<Graph*, std::set<int>*> x = ParseCSV(filename,header,delimiter);
 
@@ -173,8 +179,6 @@ int main(int argc, char **argv)
 	//Testing
 	std::cout	<< "Testing Graph"						<< std::endl
 				<< "----------------------------------" << std::endl;		
-	int runs = 500;
-	int landmarks = 100; 
 	std::vector<std::string>* stringStrat = new std::vector<std::string>({ "Random","Degree","Clustering" });
 	
 	std::vector<Delegate>* strategies = new std::vector<Delegate>({ RandomStrategy, DegreeStrategy, ClusteringStrategy });
@@ -182,7 +186,8 @@ int main(int argc, char **argv)
 	std::ofstream outputFile;
 	outputFile.open("output.txt");
 	outputFile << "Strategy | Average Error | Average Ratio | Average Upperbound | Average Lowerbound | Time" << std::endl;
-	for (int i = 0; i < strategies->size(); i++)
+	int loopsize = strategies->size();
+	for (int i = 0; i < loopsize; i++)
 	{
 		const clock_t begin_time = clock();
 		//Creating Our System Representation
@@ -204,7 +209,7 @@ int main(int argc, char **argv)
 			int indexB = rand() % (nodes->size());
 			
 			std::cout << "Run - " << i              << std::endl
-			          << indexA << " - " << indexB  << std::endl;
+			          << "\tNode #ID: " << indexA << "\tpath to\tNode #ID: " << indexB  << std::endl;
 			Node* Anode = nodesList->at(indexA);
 			Node* Bnode = nodesList->at(indexB);
 
@@ -213,6 +218,9 @@ int main(int argc, char **argv)
 			int L = boost::get<1>(approx);
 			
 			int distance = trueDistance(graph, Anode, Bnode);
+      
+      if( distance == 0 )
+        std::cout<<"NOPE" <<std::endl;
       
 			float error = abs(U - distance) / distance;
 			float ratio = ((double)(U - L)) / ((double)U);

@@ -121,12 +121,14 @@ std::vector<Node*>* Landmarks::PickLandmarks(const Graph* G, std::vector<Node*>*
 	std::vector<int>* nmbrs = strategy(G,nmbrLandmarks,nodes);
 	
 	//Node Selection By Index
-	for (int i = 0; i < nmbrs->size(); i++)
+	int loopsize = nmbrs->size();
+	for (int i = 0; i < loopsize; i++)
 	{
 		newLandmarks->push_back(nodes->at(nmbrs->at(i)));
 	}
 
-	if(newLandmarks->size() != nmbrLandmarks)
+  int currentLandmarks = newLandmarks->size();
+	if(currentLandmarks != nmbrLandmarks)
 		throw "Not enough Landmarks selected - Landmark::PickLandmarks";
 	else
 		return newLandmarks;
